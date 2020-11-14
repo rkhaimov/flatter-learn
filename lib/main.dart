@@ -1,61 +1,54 @@
+import 'package:first_app/entities.dart';
+import 'package:first_app/quiz.dart';
 import 'package:flutter/material.dart';
-import 'package:english_words/english_words.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final List<Question> _questions = [
+    Question('What is your name?',
+        [Question.createAnswer('Black', 1), Question.createAnswer('White', 0)]),
+    Question('What is your surname?', [
+      Question.createAnswer('Green', 1),
+      Question.createAnswer('Yellow', 0)
+    ]),
+  ];
+
+  var _index = 0;
+  var _rank = 0;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Startup Name Generator',
-      home: RandomWords(),
-    );
-  }
-}
-
-class RandomWords extends StatefulWidget {
-  @override
-  _RandomWordsState createState() => _RandomWordsState();
-}
-
-class _RandomWordsState extends State<RandomWords> {
-  final _suggestions = <WordPair>[];
-  final _biggerFont = TextStyle(fontSize: 18.0);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Startup Name Generator'),
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Hello app'),
+        ),
+        body: buildQuestionOrShowResult(),
       ),
-      body: _buildSuggestions(),
     );
-    ;
   }
 
-  Widget _buildSuggestions() {
-    return ListView.builder(
-        padding: EdgeInsets.all(16.0),
-        itemBuilder: (context, length) {
-          if (length.isOdd) {
-            return Divider();
-          }
-
-          final index = length ~/ 2;
-
-          if (index >= _suggestions.length) {
-            _suggestions.addAll(generateWordPairs().take(10));
-          }
-
-          return _buildRow(_suggestions[index]);
+  Widget buildQuestionOrShowResult() {
+    if (_index == _questions.length) {
+      return Quiz.result(_rank, () {
+        setState(() {
+          _index = 0;
+          _rank = 0;
         });
-  }
+      });
+    }
 
-  Widget _buildRow(WordPair pair) {
-    return ListTile(
-        title: Text(
-      pair.asPascalCase,
-      style: _biggerFont,
-    ));
+    return Quiz.question(_questions[_index], (rank) {
+      setState(() {
+        _index += 1;
+        _rank += rank;
+      });
+    });
   }
 }
