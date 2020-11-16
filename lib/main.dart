@@ -1,27 +1,14 @@
-import 'package:first_app/entities.dart';
-import 'package:first_app/quiz.dart';
+import 'package:first_app/QuestionProvider.dart';
+import 'package:first_app/QuizParts.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => QuestionProvider())],
+      child: MyApp(),
+    ));
 
-class MyApp extends StatefulWidget {
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  final List<Question> _questions = [
-    Question('What is your name?',
-        [Question.createAnswer('Black', 1), Question.createAnswer('White', 0)]),
-    Question('What is your surname?', [
-      Question.createAnswer('Green', 1),
-      Question.createAnswer('Yellow', 0)
-    ]),
-  ];
-
-  var _index = 0;
-  var _rank = 0;
-
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -29,26 +16,18 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: Text('Hello app'),
         ),
-        body: buildQuestionOrShowResult(),
+        body: buildQuestionOrShowResult(context),
       ),
     );
   }
 
-  Widget buildQuestionOrShowResult() {
-    if (_index == _questions.length) {
-      return Quiz.result(_rank, () {
-        setState(() {
-          _index = 0;
-          _rank = 0;
-        });
-      });
+  Widget buildQuestionOrShowResult(BuildContext context) {
+    var presenter = context.watch<QuestionProvider>().get();
+
+    if (presenter.hasEnded()) {
+      return QuizResult(presenter.score, presenter.retry);
     }
 
-    return Quiz.question(_questions[_index], (rank) {
-      setState(() {
-        _index += 1;
-        _rank += rank;
-      });
-    });
+    return QuizQuestion(presenter.current, presenter.answerAndGoToNext);
   }
 }

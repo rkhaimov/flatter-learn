@@ -1,24 +1,9 @@
-import 'package:first_app/answer.dart';
+import 'package:first_app/AnswerButton.dart';
 import 'package:flutter/material.dart';
 
-import 'entities.dart';
+import 'Entities.dart';
 
-class Quiz {
-  static Widget result(int rank, VoidCallback onFinish) {
-    return _QuizResult(rank, onFinish);
-  }
-
-  static Widget question(Question question, AnswerOnQuestion answerOnQuestion) {
-    return _QuizItem(question, answerOnQuestion);
-  }
-}
-
-class _QuizResult extends StatelessWidget {
-  final int rank;
-  final VoidCallback onFinish;
-
-  _QuizResult(this.rank, this.onFinish);
-
+class QuizResult extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -45,46 +30,44 @@ class _QuizResult extends StatelessWidget {
       ),
     );
   }
+
+  final int rank;
+  final VoidCallback onFinish;
+
+  QuizResult(this.rank, this.onFinish);
 }
 
 typedef void AnswerOnQuestion(int rank);
 
-class _QuizItem extends StatelessWidget {
-  final Question _question;
-  final AnswerOnQuestion _answerOnQuestion;
-
-  _QuizItem(this._question, this._answerOnQuestion);
-
+class QuizQuestion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        QuestionView(_question.text),
+        _buildQuestionText(_question.text),
         ..._question.answers.map((answer) =>
             AnswerButton(() => _answerOnQuestion(answer.rank), answer.text)),
       ],
     );
   }
-}
 
-class QuestionView extends StatelessWidget {
-  final String _text;
-
-  QuestionView(this._text);
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildQuestionText(String text) {
     return Container(
       margin: EdgeInsets.all(10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            _text,
+            text,
             style: TextStyle(fontSize: 28),
           )
         ],
       ),
     );
   }
+
+  final Question _question;
+  final AnswerOnQuestion _answerOnQuestion;
+
+  QuizQuestion(this._question, this._answerOnQuestion);
 }
